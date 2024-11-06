@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Password;
 class AuthController extends Controller
 {
    public function register(Request $request)
@@ -54,6 +54,61 @@ public function login(Request $request)
         'access_token' => $token,
         'token_type' => 'Bearer',
     ]);
+}
+
+public function sendVerificationEmail(Request $request)
+{
+    if ($request->user()->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Already verified'], 200);
+    }
+
+    $request->user()->sendEmailVerificationNotification();
+
+    return response()->json(['message' => 'Verification link sent!']);
+}
+
+public function verifyEmail(Request $request)
+{
+    if ($request->user()->markEmailAsVerified()) {
+        return response()->json(['message' => 'Email verified successfully']);
+    }
+
+    return response()->json(['message' => 'Failed to verify email'], 400);
+}
+
+public function sendPasswordResetLink(Request $request)
+{
+    $request->validate(['email' => 'required|email']);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return $status === Password::RESET_LINK_SENT
+                ? response()->json(['message' => 'Reset link sent!'])
+                : response()->json(['message' => 'Error sending reset link'], 400);
+}
+
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => Hash::make($password),
+            ])->save();
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+                ? response()->json(['message' => 'Password reset successfully'])
+                : response()->json(['message' => 'Password reset failed'], 400);
 }
 
 public function logout(Request $request)
