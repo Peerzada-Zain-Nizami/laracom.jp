@@ -3,6 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlogPostController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\TutorialController;
 use Illuminate\Support\Facades\Auth;
@@ -40,11 +46,32 @@ Route::prefix('content')->middleware('auth:sanctum')->group(function () {
     // Route::apiResource('blogs', BlogController::class);
 
     // // Fetch categories and subtopics
-    // Route::get('categories', [CategoryController::class, 'index']);
-    // Route::get('categories/{category}/subtopics', [CategoryController::class, 'subtopics']);
+    Route::get('categories', [CategoryController::class, 'index']);
+    Route::get('categories/{category}/subtopics', [CategoryController::class, 'subtopics']);
+
+    Route::apiResource('blog-posts', BlogPostController::class); // Blog post CRUD
+    Route::get('user/blog-posts', [BlogPostController::class, 'userBlogPosts']);
 
     // // Fetch user-specific content
-    // Route::get('user/tutorials', [TutorialController::class, 'userTutorials']);
+    Route::get('user/tutorials', [TutorialController::class, 'userTutorials']);
     // Route::get('user/blogs', [BlogController::class, 'userBlogs']);
 });
+
+    Route::middleware('auth:sanctum')->group(function () {
+    Route::get('quizzes', [QuizController::class, 'index']);
+    Route::get('quizzes/{id}', [QuizController::class, 'show']);
+    Route::post('quizzes/evaluate/{id}', [QuizController::class, 'evaluate']);
+
+    Route::post('questions', [QuestionController::class, 'store']);
+    Route::put('questions/{id}', [QuestionController::class, 'update']);
+    Route::delete('questions/{id}', [QuestionController::class, 'destroy']);
+
+    Route::get('comments', [CommentController::class, 'index']);
+    Route::post('comments', [CommentController::class, 'store']);
+    Route::delete('comments/{id}', [CommentController::class, 'destroy']);
+
+    Route::post('likes', [LikeController::class, 'store']);
+    Route::delete('likes', [LikeController::class, 'destroy']);
+    });
+
 
