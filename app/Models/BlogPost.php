@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
+
 
 class BlogPost extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $fillable = ['title', 'content', 'user_id'];
 
@@ -20,4 +22,5 @@ class BlogPost extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+    
 }
