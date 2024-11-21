@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\TutorialController;
+use App\Http\Controllers\CodeExecutionController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -72,6 +75,13 @@ Route::prefix('content')->middleware('auth:sanctum')->group(function () {
 
     Route::post('likes', [LikeController::class, 'store']);
     Route::delete('likes', [LikeController::class, 'destroy']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']); // Get all notifications
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']); // Mark notifications as read
+    Route::post('/notifications/send', [NotificationController::class, 'sendNotification']);
+    Route::get('/search', [SearchController::class, 'search'])->name('search');
     });
+
+Route::post('/execute-code', [CodeExecutionController::class, 'execute'])->name('execute.code');
 
 

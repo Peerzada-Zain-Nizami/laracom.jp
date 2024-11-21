@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\Registered;
 class AuthController extends Controller
 {
    public function register(Request $request)
@@ -27,11 +28,14 @@ class AuthController extends Controller
         'password' => Hash::make($request->password),
     ]);
 
+        event(new Registered($user));
+
     $token = $user->createToken('auth_token')->plainTextToken;
 
     return response()->json([
         'access_token' => $token,
         'token_type' => 'Bearer',
+        'message' => 'User registered successfully, and a notification email has been sent.'
     ]);
 }
 
